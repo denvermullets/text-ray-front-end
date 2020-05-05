@@ -57,7 +57,6 @@ topLeft.addEventListener("click", function(e){
 
 function addNewUser(userName) {
     new_user = {name: userName}
-    console.log(new_user)
     fetch("http://localhost:3000/users", {
     method: 'post',
     headers: {
