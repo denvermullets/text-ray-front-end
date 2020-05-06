@@ -26,6 +26,7 @@ topLeft.addEventListener("click", function(e){
     if (e.target.id === "submit-user") {
         userName = topLeft.querySelector("#uname").value
         // check if username is in our array
+        
                 for(var i = 0; i < userNamesArr.length; i++) {
                     if (userNamesArr[i].name == userName) {
                         console.log("exists in DB")
