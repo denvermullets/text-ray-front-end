@@ -111,3 +111,30 @@ function getGameLetters(gameID) {
 
 
 }); // end of DOM Content Loaded 
+
+function createBox(letter) {
+    let mainDiv = document.querySelector('.fullWord')
+    mainDiv.innerHTML = `
+    <div class="brownBox"><img src="images/brown-box.png">
+    `
+    // mainDiv.innerHTML = `
+    // <p style="background: url(images/brown-box.png)" class="brownBox">P</p>
+    // `
+    
+    // let newBox = document.createElement('img')
+    // newBox.src = 'images/brown-box.png'
+    // newBox.className = 'brownBox'
+
+
+    // // let letterDiv = document.createElement('div')
+    // let newLetter = document.createElement('div')
+    // newLetter.className = 'divLetter'
+    // newLetter.dataset.letter = letter
+    
+
+    // mainDiv.append(newBox)
+
+    // newLetter.textContent = letter.toUpperCase()
+    // mainDiv.append(newLetter)
+
+}
