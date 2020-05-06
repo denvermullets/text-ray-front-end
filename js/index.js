@@ -1,5 +1,7 @@
 document.addEventListener('DOMContentLoaded', (event) => {
 
+getGameLetters(2)
+
 let userName;
 const topLeft = document.querySelector(".top-left")
 
@@ -75,18 +77,37 @@ fetch(`http://localhost:3000/users/${userName}`)
   });
 } // end of get single users function 
 
-function getGameLetters(game) {
-    fetch(`http://localhost:3000/games/${game}`)
+function getGameLetters(gameID) {
+    fetch(`http://localhost:3000/games/${gameID}`)
     .then(resp => resp.json())
     .then(game => {
-        lettersArr = []
-        const letters = game.letters.split("")
-        letters.forEach(letter => 
-            letters
-            )
+        const letters = game.letters.toUpperCase()
+        for (var i = 0; i < letters.length; i++) {
+           if (i === 0) {
+               document.querySelector("#six").textContent = letters.charAt(i)
+           } 
+           else if (i === 1) {
+            document.querySelector("#one").textContent = letters.charAt(i)
+           }
+           else if (i === 2) {
+            document.querySelector("#two").textContent = letters.charAt(i)
+           }
+           else if (i === 3) {
+            document.querySelector("#four").textContent = letters.charAt(i)
+           }
+           else if (i === 4) {
+            document.querySelector("#five").textContent = letters.charAt(i)
+           }
+           else if (i === 5) {
+            document.querySelector("#seven").textContent = letters.charAt(i)
+           }
+           else if (i === 6) {
+            document.querySelector("#eight").textContent = letters.charAt(i)
+           }
 
-    })
-}
+          }
+    }) 
+} // end of fetch game letters
 
 
 }); // end of DOM Content Loaded 
