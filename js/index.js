@@ -6,7 +6,7 @@ let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
 const fullWordDiv = document.querySelector('.fullWord')
 let gameWordIDs = [] //set with getGameWords
-let userScore;
+let userScore = 0;
 let userID; //should be set with getUser fn, not working in line 32
 let letterCollection = []
 let wordCollection = []
@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
 
          } //end of if target is submit user 
     
-        else if (e.target.id === "change-user") {
+        else if (e.target.id === "end-game") {
             topLeft.innerHTML = `
             <div class="enter-user">
             <label for="uname"><b>Username</b></label>
@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             <button id="submit-user" type="submit">Submit</button>
           </div>
             `
-            // POST in create gameUser with current score which has been opt rendered the whole time 
+            createGameUser()
         } //end of change user listener
     }) // end of user event listener
     
@@ -60,20 +60,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
             createBox(e.target.textContent)
 
         } else if (e.target.className === "submit-word") {
-            getCurrentGameUser() // PUTTING THIS HERE TO GRAB ID WHEN WORD IS SUBMITTED SO WE CAN UPDATE SAID SCORE IF RIGHT
             if (letterCollection.includes(keyLetter)) {
                 let submission = letterCollection.join("").toLowerCase()
                 if (submission.length > 3) {
                 letterCollection = [] // resets array
                 submissionID = getWordId(submission)
+                if (submissionID == undefined){
+                    alert("Not a real word dude")
+                }
+                else {
                     if (wordCollection.includes(submission)) {
                         alert("word has already been submitted")
                     } // end of if the word has already been submitted
                     else {
                         answerAnimationCorrect()
-                        wordCollection.push(submission)
+                        // wordCollection.push(submission)
                         console.log(wordCollection)
                     } // end of if is a newly submitted word
+                } // end of real word confirmed
                 } // end of length confirmed
                 else {
                     letterCollection = [] // resets array
@@ -100,9 +104,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             } else {
                 userID = user.id
                 console.log(`found ${userName} w/id of ${userID}`)
-                createGameUser(userID, gameID)
             }
-            // createGameUser(userID, gameID)
             changeLoggedInState()
         })
     } 
@@ -124,24 +126,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function changeLoggedInState(){
         topLeft.innerHTML = `
         <h2> ${userName}</h2>
-        <button id="change-user">Change User</button>
+        <button id="end-game">End Game</button>
         `
     }
 
-    function getCurrentGameUser() {
-        fetch(`http://localhost:3000/game_users`)
-        .then(resp => resp.json())
-        // .then(gameusers => { console.log(gameusers[gameusers.length - 1].id)}) //grab the last record 
-        .then(gameusers => { 
-            gameUserID = gameusers[gameusers.length - 1].id
-            userScore =  gameusers[gameusers.length - 1].score
-            console.log(`game user id is ${gameUserID}`)
-        }) 
-    }
+    // function getCurrentGameUser() {
+    //     fetch(`http://localhost:3000/game_users`)
+    //     .then(resp => resp.json())
+    //     // .then(gameusers => { console.log(gameusers[gameusers.length - 1].id)}) //grab the last record 
+    //     .then(gameusers => { 
+    //         gameUserID = gameusers[gameusers.length - 1].id
+    //         userScore =  gameusers[gameusers.length - 1].score
+    //         console.log(`game user id is ${gameUserID}`)
+    //     }) 
+    // }
 
     
     function createGameUser() {
-       let  new_game_user = {user_id: userID, game_id: gameID, score: 0}
+       let  new_game_user = {user_id: userID, game_id: gameID, score: userScore}
        console.log(new_game_user)
         fetch("http://localhost:3000/game_users", {
         method: 'post',
@@ -167,21 +169,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     function addWordToScore(points){
         console.log(`score was ${userScore}`)
-        newScore = userScore + points
-        fetch(`http://localhost:3000/game_users/${gameUserID}`, { 
-        method: 'patch',
-        headers: {
-            'Access-Control-Allow-Methods': 'patch',
-            "accept": "application/json",
-            "content-type": "application/json"
-        },
-        body: JSON.stringify({score: newScore})
-        })
-        .then(response => response.json)
-        .then(json => console.log(json))
+        userScore += points
+        // fetch(`http://localhost:3000/game_users/${gameUserID}`, { 
+        // method: 'patch',
+        // headers: {
+        //     'Access-Control-Allow-Methods': 'patch',
+        //     "accept": "application/json",
+        //     "content-type": "application/json"
+        // },
+        // body: JSON.stringify({score: newScore})
+        // })
+        // .then(response => response.json)
+        // .then(json => console.log(json))
 
         // console.log(`new score is ${userScore}`)
-       
+       console.log(`new score is ${userScore}`)
     }
     
     function getGameLetters(gameID) {
