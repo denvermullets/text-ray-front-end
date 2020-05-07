@@ -1,10 +1,10 @@
-let gameID = 1; //will eventually be rand if when have more games
+let gameID = Math.floor(Math.random() * 3) + 5; //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
 const fullWordDiv = document.querySelector('.fullWord')
 let gameWordIDs = [] //set with getGameWords
-let userScore = 0
+let userScore = 0;
 let userID; //should be set with getUser fn, not working in line 32
 let letterCollection = []
 
@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (e.target.id === "submit-user") {
             userName = topLeft.querySelector("#uname").value
             getUser(userName) 
+
          } //end of if target is submit user 
     
         else if (e.target.id === "change-user") {
@@ -89,6 +90,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 console.log(`found ${userName} w/id of ${userID}`)
                 createGameUser(userID, gameID)
             }
+            createGameUser(userID, gameID)
             changeLoggedInState()
         })
     } 
@@ -103,9 +105,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         },
         body: JSON.stringify(new_user)
         })
-        .then(user => {
-            getUser(userName)
-        })
+        .then(getUser(userName))
         
     } 
     
@@ -142,17 +142,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     } 
     
     function addWordToScore(points){
-        userScore += points
-        console.log(userScore)
-        // fetch(`http://localhost:3000/game_users/${userID}`, {
-        // method: 'patch',
-        // headers: {
-        //     "accept": "application/json",
-        //     "content-type": "application/json"
-        // },
-        // body: JSON.stringify({score: newScore})
-        // })
-        // .then(userScore += points)  
+        console.log(`score was ${userScore}`)
+        newScore = userScore + points
+        fetch(`http://localhost:3000/game_users/${userID}`, { 
+        method: 'patch',
+        headers: {
+            "accept": "application/json",
+            "content-type": "application/json"
+        },
+        body: JSON.stringify({score: newScore})
+        })
+        .then(userScore += points)  
+        console.log(console.log(`score is now ${userScore}`))
        
     }
     
