@@ -2,6 +2,7 @@ let gameID = 1; //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
+const fullWordDiv = document.querySelector('.fullWord')
 let gameWordIDs = [] //set with getGameWords
 let userScore = 0
 let userID; //should be set with getUser fn, not working in line 32
@@ -26,12 +27,11 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     topLeft.addEventListener("click", function(e){
         e.preventDefault()
+        
         if (e.target.id === "submit-user") {
             userName = topLeft.querySelector("#uname").value
             getUser(userName) 
-            createGameUser(userID, gameID)
-    
-            } //end of if target is submit user 
+         } //end of if target is submit user 
     
         else if (e.target.id === "change-user") {
             topLeft.innerHTML = `
@@ -48,14 +48,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
     document.addEventListener("click", function(e){
         if (e.target.className === "boxLetters sansserif"){
             letterCollection.push(e.target.textContent)
-        } // end of if click is on a letter
-        else if (e.target.className === "submit-word") {
+            
+            createBox(e.target.textContent)
+
+        } else if (e.target.className === "submit-word") {
             if (letterCollection.includes(keyLetter)) {
                 let submission = letterCollection.join("").toLowerCase()
                 if (submission.length > 3) {
                 letterCollection = [] // resets array
                 submissionID = getWordId(submission)
-    
+            
+                answerAnimationCorrect()
+
                 } // end of length confirmed
                 else {
                     letterCollection = [] // resets array
@@ -83,6 +87,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             } else {
                 userID = user.id
                 console.log(`found ${userName} w/id of ${userID}`)
+                createGameUser(userID, gameID)
             }
             changeLoggedInState()
         })
@@ -196,29 +201,40 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
 }); // end of DOM Content Loaded 
     
-    function createBox(letter) {
-        let mainDiv = document.querySelector('.fullWord')
-        mainDiv.innerHTML = `
-        <div class="brownBox"><img src="images/brown-box.png">
+function createBox(letter) {
+    
+    let newBox = document.createElement('div')
+    if (letter === keyLetter) {
+        newBox.className = 'blueBox'
+        newBox.innerHTML = `
+            <span id="${letter}" class="sansserif blueBoxType">${letter.toUpperCase()}</span>
         `
-        // mainDiv.innerHTML = `
-        // <p style="background: url(images/brown-box.png)" class="brownBox">P</p>
-        // `
-        
-        // let newBox = document.createElement('img')
-        // newBox.src = 'images/brown-box.png'
-        // newBox.className = 'brownBox'
-    
-    
-        // // let letterDiv = document.createElement('div')
-        // let newLetter = document.createElement('div')
-        // newLetter.className = 'divLetter'
-        // newLetter.dataset.letter = letter
-        
-    
-        // mainDiv.append(newBox)
-    
-        // newLetter.textContent = letter.toUpperCase()
-        // mainDiv.append(newLetter)
-    
+    } else {
+        newBox.className = 'brownBox'
+        newBox.innerHTML = `
+        <span id="${letter}" class="sansserif boxType">${letter.toUpperCase()}</span>
+        `
     }
+    newBox.classList.add('animated', 'bounceInRight')
+    fullWordDiv.append(newBox)
+}
+
+function answerAnimationCorrect() {
+    animateCSS('.fullWord', 'fadeOutLeft', function() {
+        // Do something after animation
+      })
+}
+
+function animateCSS(element, animationName, callback) {
+    const node = document.querySelector(element)
+    node.classList.add('animated', animationName)
+
+    function handleAnimationEnd() {
+        node.classList.remove('animated', animationName)
+        node.removeEventListener('animationend', handleAnimationEnd)
+
+        if (typeof callback === 'function') callback()
+    }
+
+    node.addEventListener('animationend', handleAnimationEnd)
+}
