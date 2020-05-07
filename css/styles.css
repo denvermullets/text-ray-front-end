@@ -10,8 +10,6 @@
     font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif;
   }
 
-  /* h1 { font-size: 24px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 26.4px; } h3 { font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 700; line-height: 15.4px; } p { font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif; font-size: 14px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 20px; } blockquote { font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif; font-size: 21px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 30px; } pre { font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif; font-size: 13px; font-style: normal; font-variant: normal; font-weight: 400; line-height: 18.5714px; } */
-
 /* Top left text */
 .top-left {
     position: absolute;
@@ -107,16 +105,57 @@
 
 .fullWord {
   position: absolute;  
+  display: -webkit-flex;
+  display: flex;
+  flex-direction: row;
+  -webkit-justify-content: space-around; 
+  justify-content: space-around;
   /* background: orange; */
-  width: 60%;
+  width: 75%;
   height: 10vw;
   bottom: 18%;         
-  left: 25%;        
+  left: 20%; 
+
+  
 }  
 
 .brownBox {
+  background-image: url('../images/brown-box.png');
+  background-size: 100%;
+  margin-top: 4.7%;
+  width: 9vw;
+  height: 7vw;
+
+}
+
+.blueBox {
+  background-image: url('../images/blue-box.png');
+  background-repeat: no-repeat;
+  background-size: 100%;
+  margin-top: 6%;
+  width: 12vw;
+  /* height: 10vw; */
+
+}
+
+.userLetter {
+  top: 7%;         
+  left: 90%;        
+}
+
+.boxType {
   position: absolute;
-  max-width: 100%;
+  text-align: right;
+  font-size: 6vw;
+  line-height: 140%;
+
+}
+.blueBoxType {
+  position: absolute;
+  /* text-align: right; */
+  font-size: 6vw;
+  line-height: 100%;
+  right: 7%;
 
 }
   
@@ -126,4 +165,40 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+
+@-webkit-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+@-o-keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+@keyframes flexGrow {
+  to {
+    flex: 1;
+  }
+}
+
+@-webkit-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@-o-keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
+}
+@keyframes flexShrink {
+  to {
+    flex: .01;
+    flex: .00001;
+  }
 }
