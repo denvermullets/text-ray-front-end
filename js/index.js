@@ -1,6 +1,6 @@
 let gameID = Math.floor(Math.random() * 3) + 1; //will eventually be rand if when have more games
 // let gameID = Math.floor(Math.random() * 1) + 3; //will eventually be rand if when have more games
-
+console.log(gameID)
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
@@ -8,8 +8,8 @@ const fullWordDiv = document.querySelector('.fullWord')
 let gameWordIDs = [] //set with getGameWords
 let userScore = 0;
 let userID; //should be set with getUser fn, not working in line 32
-let letterCollection = []
-let wordCollection = []
+let letterCollection = '' // changed to be a string
+let wordCollection = [] // array of user submitted words
 let gameUserID;
 
 
@@ -55,40 +55,32 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     document.addEventListener("click", function(e){
         if (e.target.className === "boxLetters sansserif"){
-            letterCollection.push(e.target.textContent)
-            
+            // add letter to string
+            letterCollection = letterCollection + e.target.textContent
+            // create conveyor belt box w/letter
             createBox(e.target.textContent)
 
         } else if (e.target.className === "submit-word") {
-            if (letterCollection.includes(keyLetter)) {
-                let submission = letterCollection.join("").toLowerCase()
-                if (submission.length > 3) {
-                letterCollection = [] // resets array
-                submissionID = getWordId(submission)
-                if (submissionID == undefined){
-                    alert("Not a real word dude")
-                }
-                else {
-                    if (wordCollection.includes(submission)) {
-                        alert("word has already been submitted")
-                    } // end of if the word has already been submitted
-                    else {
-                        answerAnimationCorrect()
-                        // wordCollection.push(submission)
-                        console.log(wordCollection)
-                    } // end of if is a newly submitted word
-                } // end of real word confirmed
-                } // end of length confirmed
-                else {
-                    letterCollection = [] // resets array
-                    alert("Word must contain more than 3 letters")
-                } // end of short word error
-        } // end of key letter confirm
-        else { 
-            letterCollection = [] // resets array
-            alert("Word must contain the key letter!") 
-        }
-        } // end of submit word listener
+            if (!letterCollection.includes(keyLetter)) {
+                console.log('keyletter not used')
+                resetWord()
+            } else if (letterCollection.length < 4) {
+                resetWord()
+                console.log('less than 4 letters used')
+            } else if (wordCollection.includes(letterCollection)) {
+                resetWord()
+                console.log('user already submitted word')
+            } else {
+                // all conditions must be true
+                console.log('keyletter found')
+                answerAnimationCorrect()
+                console.log(letterCollection)
+                getWordId(letterCollection.toLowerCase())
+                wordCollection.push(letterCollection)
+                console.log(wordCollection)
+                resetWord()
+            }
+        }   
     }) // end of click event listener
     
     
@@ -115,32 +107,18 @@ document.addEventListener('DOMContentLoaded', (event) => {
         method: 'post',
         headers: {
             "accept": "application/json",
-            "content-type": "application/json"
-        },
-        body: JSON.stringify(new_user)
-        })
-        .then(getUser(userName))
-        
+            "content-type": "application/json" },
+        body: JSON.stringify(new_user) })
+            .then(getUser(userName))
     } 
     
     function changeLoggedInState(){
         topLeft.innerHTML = `
         <h2> ${userName}</h2>
+        <p class='curScore'>Current score: ${userScore}</p>
         <button id="end-game">End Game</button>
         `
     }
-
-    // function getCurrentGameUser() {
-    //     fetch(`http://localhost:3000/game_users`)
-    //     .then(resp => resp.json())
-    //     // .then(gameusers => { console.log(gameusers[gameusers.length - 1].id)}) //grab the last record 
-    //     .then(gameusers => { 
-    //         gameUserID = gameusers[gameusers.length - 1].id
-    //         userScore =  gameusers[gameusers.length - 1].score
-    //         console.log(`game user id is ${gameUserID}`)
-    //     }) 
-    // }
-
     
     function createGameUser() {
        let  new_game_user = {user_id: userID, game_id: gameID, score: userScore}
@@ -158,31 +136,27 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function getWordId(word){
         fetch(`http://localhost:3000/words/${word}`)
         .then(resp => resp.json())
-        .then(word => {
-            let isWordInArray = gameWordIDs.includes(word.id)
-            if (isWordInArray){
-                addWordToScore(word.point_value)
+        .then(findWord => {
+            let wordNum = findWord.id
+            if (gameWordIDs.includes(wordNum)) {
+                addWordToScore(findWord.point_value)
+            } else {
+                
+                console.log('word not found')
             }
-            console.log(isWordInArray)
-        }) 
-    } 
+        }).catch(function() {
+            wordNotFound()
+            console.log("error");
+        })
+    }    
     
     function addWordToScore(points){
         console.log(`score was ${userScore}`)
         userScore += points
-        // fetch(`http://localhost:3000/game_users/${gameUserID}`, { 
-        // method: 'patch',
-        // headers: {
-        //     'Access-Control-Allow-Methods': 'patch',
-        //     "accept": "application/json",
-        //     "content-type": "application/json"
-        // },
-        // body: JSON.stringify({score: newScore})
-        // })
-        // .then(response => response.json)
-        // .then(json => console.log(json))
 
-        // console.log(`new score is ${userScore}`)
+        let currentScore = document.querySelector('.curScore')
+        currentScore.innerText = `Current score: ${userScore}`
+
        console.log(`new score is ${userScore}`)
     }
     
@@ -230,6 +204,21 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     
 }); // end of DOM Content Loaded 
+
+function wordNotFound() {
+    wordCollection.pop()
+    console.log('removed wrong word')
+}
+
+function updateScore() {
+
+    console.log('hi')
+}
+
+function resetWord() {
+    letterCollection = ''
+    fullWordDiv.innerHTML = ''
+}
     
 function createBox(letter) {
     
