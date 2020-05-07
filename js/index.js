@@ -1,4 +1,4 @@
-let gameID = Math.floor(Math.random() * 3) + 5; //will eventually be rand if when have more games
+let gameID = Math.floor(Math.random() * 1) + 3; //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
@@ -223,6 +223,7 @@ function createBox(letter) {
 function answerAnimationCorrect() {
     animateCSS('.fullWord', 'fadeOutLeft', function() {
         // Do something after animation
+        fullWordDiv.innerHTML = ''
       })
 }
 
