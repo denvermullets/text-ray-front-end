@@ -40,6 +40,9 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // create conveyor belt box w/letter
             createBox(e.target.textContent)
 
+        } else if (e.target.className === "squareThree"){
+            nextGame()
+
         } else if (e.target.className === "submit-word") {
             if (!letterCollection.includes(keyLetter)) {
                 console.log('keyletter not used')
@@ -112,7 +115,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
         <ul class="wordsFound">
         </ul>
         `
+        setNewGame()
+
+    }
+
+    function nextGame(){
+        createGameUser()
+        userScore = 0
+        document.querySelector(".curScore").innerText = "Current score: 0"
+        document.querySelector(".wordsFound").innerHTML = ""
+        wordCollection = []
+        setNewGame()
+    }
+
+    function setNewGame(){
+        let curGame = gameID
         gameID = Math.floor(Math.random() * 3) + 1
+        if (gameID === curGame) {
+            gameID = Math.floor(Math.random() * 3) + 1 
+        } else {
         console.log(`game ID ${gameID}`)
         getGameLetters(gameID)
         getGameWords(gameID)
@@ -120,8 +141,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         loadAllWords(gameID)
 
         getLeaderboard(gameID)
-        displayLeaderBoard()
-
+        }
     }
     
     function createGameUser() {
@@ -161,7 +181,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
                     })
                 }
             }) 
-        }) 
+        })
+        .then(document.querySelector("li").remove()) 
     }
     
     function addWordToScore(points){
