@@ -14,9 +14,6 @@ let gameUserID;
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-
-    getGameLetters(gameID)
-    getGameWords(gameID)
     
     if (!userName) {
         topLeft.innerHTML = `
@@ -63,22 +60,25 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } else if (e.target.className === "submit-word") {
             if (!letterCollection.includes(keyLetter)) {
                 console.log('keyletter not used')
-                resetWord()
+                answerAnimationWrong()
             } else if (letterCollection.length < 4) {
-                resetWord()
+                answerAnimationWrong()
                 console.log('less than 4 letters used')
             } else if (wordCollection.includes(letterCollection)) {
-                resetWord()
+                answerAnimationWrong()
                 console.log('user already submitted word')
             } else {
                 // all conditions must be true
                 console.log('keyletter found')
-                answerAnimationCorrect()
                 console.log(letterCollection)
                 getWordId(letterCollection.toLowerCase())
                 wordCollection.push(letterCollection)
                 console.log(wordCollection)
-                resetWord()
+                const submittedWords = document.querySelector('.wordsFound')
+                let newLi = document.createElement('li')
+                newLi.innerText = capitalizeFirstLetter(letterCollection)
+                submittedWords.appendChild(newLi)
+                answerAnimationCorrect()
             }
         }   
     }) // end of click event listener
@@ -117,7 +117,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         <h2> ${userName}</h2>
         <p class='curScore'>Current score: ${userScore}</p>
         <button id="end-game">End Game</button>
+        <button class="submit-word">Submit Word</button>
+        <br>
+        <h4>Submitted words:</h4>
+        <ul class="wordsFound">
+        </ul>
         `
+        getGameLetters(gameID)
+        getGameWords(gameID)
     }
     
     function createGameUser() {
@@ -238,10 +245,17 @@ function createBox(letter) {
     fullWordDiv.append(newBox)
 }
 
+function answerAnimationWrong() {
+    animateCSS('.fullWord', 'bounceOutDown', function() {
+        // Do something after animation
+        resetWord()
+      })
+}
 function answerAnimationCorrect() {
     animateCSS('.fullWord', 'fadeOutLeft', function() {
         // Do something after animation
-        fullWordDiv.innerHTML = ''
+        
+        resetWord()
       })
 }
 
@@ -257,4 +271,8 @@ function animateCSS(element, animationName, callback) {
     }
 
     node.addEventListener('animationend', handleAnimationEnd)
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
 }
