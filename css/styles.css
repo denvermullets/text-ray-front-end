@@ -181,6 +181,13 @@
 
 }
   
+/* Top right text */
+.top-right {
+  position: absolute;
+  top: 8px;
+  right: 16px;
+}
+
 /* Centered text */
 .centered {
   position: absolute;
