@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } else if (e.target.id === "end-game") {
             createGameUser()
             startState()
+            document.querySelector(".thisGuy").innerHTML = ""
         } //end of change user listener
     }) // end of user event listener
     
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
             // create conveyor belt box w/letter
             createBox(e.target.textContent)
 
-        } else if (e.target.className === "squareThree"){
+        } else if (e.target.id === "next-game"){
             nextGame()
 
         } else if (e.target.className === "submit-word") {
@@ -109,6 +110,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         <h2> ${userName}</h2>
         <p class='curScore'>Current score: ${userScore}</p>
         <button id="end-game">End Game</button>
+        <button id="next-game">Next Game</button>
         <button class="submit-word">Submit Word</button>
         <br>
         <h4>Submitted words:</h4>
@@ -124,6 +126,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
         userScore = 0
         document.querySelector(".curScore").innerText = "Current score: 0"
         document.querySelector(".wordsFound").innerHTML = ""
+        document.querySelector(".thisGuy").innerHTML = ""
         wordCollection = []
         setNewGame()
     }
