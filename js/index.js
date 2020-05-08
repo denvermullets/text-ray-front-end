@@ -1,6 +1,6 @@
 let gameID = Math.floor(Math.random() * 3) + 1; //will eventually be rand if when have more games
 // let gameID = Math.floor(Math.random() * 1) + 3; //will eventually be rand if when have more games
-console.log(gameID)
+console.log(`game ID ${gameID}`)
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
@@ -11,12 +11,17 @@ let userID; //should be set with getUser fn, not working in line 32
 let letterCollection = '' // changed to be a string
 let wordCollection = [] // array of user submitted words
 let gameUserID;
+let leaderboard = []; //array of objects {playername, score} populated by getLeaderboard in descending order
+
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-
+    
     getGameLetters(gameID)
     getGameWords(gameID)
+    getLeaderboard(gameID)
+    console.log(leaderboard)
+
     
     if (!userName) {
         topLeft.innerHTML = `
@@ -149,6 +154,24 @@ document.addEventListener('DOMContentLoaded', (event) => {
             console.log("error");
         })
     }    
+
+    function getLeaderboard(gameID){
+        fetch(`http://localhost:3000/game_users`)
+        .then(resp => resp.json())
+        .then(users => { 
+            users.forEach(player => {
+                if (player.game_id === gameID) {
+                    let uScore = player.score
+                    fetch(`http://localhost:3000/user_by_id/${player.user_id}`)
+                    .then(resp => resp.json())
+                    .then(user => {
+                        let leader = {name: user.name, score: uScore} 
+                        leaderboard.push(leader)
+                    })
+                }
+            }) 
+        }) 
+    }
     
     function addWordToScore(points){
         console.log(`score was ${userScore}`)
