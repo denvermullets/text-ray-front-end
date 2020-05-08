@@ -1,55 +1,35 @@
-let gameID = Math.floor(Math.random() * 3) + 1; //will eventually be rand if when have more games
-// let gameID = Math.floor(Math.random() * 1) + 3; //will eventually be rand if when have more games
-console.log(`game ID ${gameID}`)
+let gameID  //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
 const topLeft = document.querySelector(".top-left") //used for log in box
+const topRight = document.querySelector(".top-right") //used for log in box
 const fullWordDiv = document.querySelector('.fullWord')
 let gameWordIDs = [] //set with getGameWords
-let userScore = 0;
-let userID; //should be set with getUser fn, not working in line 32
+let userScore = 0
+let userID 
 let letterCollection = '' // changed to be a string
 let wordCollection = [] // array of user submitted words
-let gameUserID;
-let leaderboard = []; //array of objects {playername, score} populated by getLeaderboard in descending order
+let gameUserID
 
-
+let allCurrentGameWords = [] // array of current valid game words to avoid pinging api
 
 
 document.addEventListener('DOMContentLoaded', (event) => {
-        
-    if (!userName) {
-        topLeft.innerHTML = `
-        <div class="enter-user">
-        <label for="uname"><b>Username</b></label>
-        <input type="text" placeholder="Enter Username" id="uname">
     
-        <button id="submit-user" type="submit">Submit</button>
-      </div>
-        `
-    } //end of if a user is not "signed in"
+    startState()
     
     topLeft.addEventListener("click", function(e){
-        e.preventDefault()
-        
         if (e.target.id === "submit-user") {
             userName = topLeft.querySelector("#uname").value
-            getUser(userName) 
-            wordCollection = []
-            
-
-         } //end of if target is submit user 
-    
-        else if (e.target.id === "end-game") {
-            topLeft.innerHTML = `
-            <div class="enter-user">
-            <label for="uname"><b>Username</b></label>
-            <input type="text" placeholder="Enter Username" id="uname">
-        
-            <button id="submit-user" type="submit">Submit</button>
-          </div>
-            `
+            if (userName.length > 0) {
+                getUser(userName) 
+                wordCollection = []
+            } else {
+                console.log('no username entered')
+            }
+        } else if (e.target.id === "end-game") {
             createGameUser()
+            startState()
         } //end of change user listener
     }) // end of user event listener
     
@@ -70,17 +50,23 @@ document.addEventListener('DOMContentLoaded', (event) => {
             } else if (wordCollection.includes(letterCollection)) {
                 answerAnimationWrong()
                 console.log('user already submitted word')
+            } else if (!allCurrentGameWords.includes(letterCollection.toLowerCase())) {
+                console.log('not a valid word')
+                answerAnimationWrong()
             } else {
                 // all conditions must be true
                 console.log('keyletter found')
                 console.log(letterCollection)
-                getWordId(letterCollection.toLowerCase())
+                
                 wordCollection.push(letterCollection)
                 console.log(wordCollection)
+                getWordValue(letterCollection)
+                
                 const submittedWords = document.querySelector('.wordsFound')
                 let newLi = document.createElement('li')
                 newLi.innerText = capitalizeFirstLetter(letterCollection)
                 submittedWords.appendChild(newLi)
+                
                 answerAnimationCorrect()
             }
         }   
@@ -126,11 +112,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
         <ul class="wordsFound">
         </ul>
         `
+        gameID = Math.floor(Math.random() * 3) + 1
+        console.log(`game ID ${gameID}`)
         getGameLetters(gameID)
         getGameWords(gameID)
 
+        loadAllWords(gameID)
+
         getLeaderboard(gameID)
-        console.log(leaderboard)
+        displayLeaderBoard()
+
     }
     
     function createGameUser() {
@@ -146,20 +137,14 @@ document.addEventListener('DOMContentLoaded', (event) => {
         })
     }
     
-    function getWordId(word){
+    function getWordValue(word){
+        // just pings server to get point_value for word
         fetch(`http://localhost:3000/words/${word}`)
         .then(resp => resp.json())
-        .then(findWord => {
-            let wordNum = findWord.id
-            if (gameWordIDs.includes(wordNum)) {
-                addWordToScore(findWord.point_value)
-            } else {
-                
-                console.log('word not found')
-            }
+        .then(findWord => {addWordToScore(findWord.point_value)  
         }).catch(function() {
             wordNotFound()
-            console.log("error");
+            console.log(error);
         })
     }    
 
@@ -169,12 +154,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
         .then(users => { 
             users.forEach(player => {
                 if (player.game_id === gameID) {
-                    let uScore = player.score
                     fetch(`http://localhost:3000/user_by_id/${player.user_id}`)
                     .then(resp => resp.json())
-                    .then(user => {
-                        let leader = {name: user.name, score: uScore} 
-                        leaderboard.push(leader)
+                    .then(user => { displayLeaderBoard(`${user.name} - ${player.score}`)
+                    // .then(user => {console.log(user)})
                     })
                 }
             }) 
@@ -218,7 +201,10 @@ document.addEventListener('DOMContentLoaded', (event) => {
                }
                else if (i === 6) {
                 document.querySelector("#eight").textContent = letters.charAt(i)
-               }
+            }
+                document.querySelector("#three").textContent = ''
+                document.querySelector("#nine").textContent = ''
+
               } 
         }) 
     } 
@@ -232,18 +218,73 @@ document.addEventListener('DOMContentLoaded', (event) => {
             }) 
         })  
     } 
+
+    
     
     
 }); // end of DOM Content Loaded 
 
-function wordNotFound() {
-    wordCollection.pop()
-    console.log('removed wrong word')
+function displayLeaderBoard(playerInfo) {
+
+    const newestUL = document.querySelector('.thisGuy')
+    let newestLi = document.createElement('li')
+    newestLi.innerText = playerInfo
+    newestUL.appendChild(newestLi)
+
 }
 
-function updateScore() {
+function loadAllWords(gameID) {
+    // looks up each game word for this game
+    fetch(`http://localhost:3000/game_words/${gameID}`)
+    .then(response => response.json())
+    .then(allWords => { allWords.forEach(singleWord => getSingleWord(singleWord.word_id))})
+}
 
-    console.log('hi')
+function getSingleWord(wordIdNum) {
+    // adds all current game winning words to an array for
+    fetch('http://localhost:3000/words/')
+        .then(response => response.json())
+        .then(allWords => {allWords.forEach(singleWord => {
+            if (singleWord.id === wordIdNum) {
+                allCurrentGameWords.push(singleWord.spelling_word)
+                console.log(`added ${singleWord.spelling_word}`)
+            }
+        })})   
+}
+
+function startState() {
+    // reset most things back to default values
+    topLeft.innerHTML = `
+    <div class="enter-user">
+    <label for="uname"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" id="uname">
+
+    <button id="submit-user" type="submit">Submit</button>
+    <br>
+    <p class="wordsFound">Basic rules:<br>
+        Make as many words as you can!<br>
+        Words must be more than 3 letters<br>
+        Words must contain the blue letter</p>
+  </div>
+    `
+    
+    allCurrentGameWords.length = 0 // reset current game words array
+    userScore = 0
+    document.querySelector("#one").textContent = 'T'
+    document.querySelector("#two").textContent = 'E'
+    document.querySelector("#three").textContent = '-'
+    document.querySelector("#four").textContent = 'X'
+    document.querySelector("#five").textContent = 'T'
+    document.querySelector("#six").textContent = '-'
+    document.querySelector("#seven").textContent = 'R'
+    document.querySelector("#eight").textContent = 'A'
+    document.querySelector("#nine").textContent = 'Y'
+}
+
+function wordNotFound() {
+    // function probably never gets called now due to refactoring
+    wordCollection.pop()
+    console.log('removed wrong word')
 }
 
 function resetWord() {
