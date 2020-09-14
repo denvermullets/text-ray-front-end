@@ -10,7 +10,7 @@ let userID
 let letterCollection = '' // changed to be a string
 let wordCollection = [] // array of user submitted words
 let gameUserID
-
+let textUrl = 'https://api.text-ray.xyz'
 let allCurrentGameWords = [] // array of current valid game words to avoid pinging api
 
 
@@ -74,7 +74,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     
     function getUser(userName) {
-        fetch(`http://localhost:3000/users/${userName}`)
+        fetch(`${textUrl}/users/${userName}`)
+        // fetch(`http://localhost:3000/users/${userName}`)
         .then(response => response.json())
         .then(user => {
             // if (!user) {
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     function addNewUser(userName) {
         let new_user = {name: userName}
-        fetch("http://localhost:3000/users", {
+        fetch(`${textUrl}/users`, {
         method: 'post',
         headers: {
             "accept": "application/json",
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     function createGameUser() {
        let  new_game_user = {user_id: userID, game_id: gameID, score: userScore}
        console.log(new_game_user)
-        fetch("http://localhost:3000/game_users", {
+        fetch(`${textUrl}/game_users`, {
         method: 'post',
         headers: {
             "accept": "application/json",
@@ -139,7 +140,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     function getWordValue(word){
         // just pings server to get point_value for word
-        fetch(`http://localhost:3000/words/${word}`)
+        fetch(`${textUrl}/words/${word}`)
         .then(resp => resp.json())
         .then(findWord => {addWordToScore(findWord.point_value)  
         }).catch(function() {
@@ -149,14 +150,17 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }    
 
     function getLeaderboard(gameID){
-        fetch(`http://localhost:3000/game_users`)
+        fetch(`${textUrl}/game_users`)
         .then(resp => resp.json())
         .then(users => { 
             users.forEach(player => {
                 if (player.game_id === gameID) {
-                    fetch(`http://localhost:3000/user_by_id/${player.user_id}`)
+                    fetch(`${textUrl}/user_by_id/${player.user_id}`)
                     .then(resp => resp.json())
-                    .then(user => { displayLeaderBoard(`${user.name} - ${player.score}`)
+                    .then(user => { 
+                        if (user) {
+                            displayLeaderBoard(`${user.name} - ${player.score}`)
+                        }
                     // .then(user => {console.log(user)})
                     })
                 }
@@ -175,7 +179,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
     
     function getGameLetters(gameID) {
-        fetch(`http://localhost:3000/games/${gameID}`)
+        fetch(`${textUrl}/games/${gameID}`)
         .then(resp => resp.json())
         .then(game => {
             const letters = game.letters.toUpperCase()
@@ -210,7 +214,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     } 
     
     function getGameWords(gameID) {
-        fetch(`http://localhost:3000/game_words/${gameID}`)
+        fetch(`${textUrl}/game_words/${gameID}`)
         .then(resp => resp.json())
         .then(words => { 
             words.forEach(word => {
@@ -225,24 +229,26 @@ document.addEventListener('DOMContentLoaded', (event) => {
 }); // end of DOM Content Loaded 
 
 function displayLeaderBoard(playerInfo) {
-
-    const newestUL = document.querySelector('.thisGuy')
-    let newestLi = document.createElement('li')
-    newestLi.innerText = playerInfo
-    newestUL.appendChild(newestLi)
+    console.log('player info', playerInfo)
+    if (playerInfo) {
+        const newestUL = document.querySelector('.thisGuy')
+        let newestLi = document.createElement('li')
+        newestLi.innerText = playerInfo
+        newestUL.appendChild(newestLi)
+    }
 
 }
 
 function loadAllWords(gameID) {
     // looks up each game word for this game
-    fetch(`http://localhost:3000/game_words/${gameID}`)
+    fetch(`${textUrl}/game_words/${gameID}`)
     .then(response => response.json())
     .then(allWords => { allWords.forEach(singleWord => getSingleWord(singleWord.word_id))})
 }
 
 function getSingleWord(wordIdNum) {
     // adds all current game winning words to an array for
-    fetch('http://localhost:3000/words/')
+    fetch(`${textUrl}/words/`)
         .then(response => response.json())
         .then(allWords => {allWords.forEach(singleWord => {
             if (singleWord.id === wordIdNum) {
