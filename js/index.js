@@ -1,5 +1,5 @@
-// let textUrl = 'https://api.text-ray.xyz'
-let textUrl = 'http://localhost:3000'
+let textUrl = 'https://api.text-ray.xyz'
+// let textUrl = 'http://localhost:3000'
 let gameID  //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
