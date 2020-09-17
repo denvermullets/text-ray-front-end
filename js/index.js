@@ -1,3 +1,5 @@
+// let textUrl = 'https://api.text-ray.xyz'
+let textUrl = 'http://localhost:3000'
 let gameID  //will eventually be rand if when have more games
 let userName; //should be set once user logs in
 let keyLetter; //set with getGameLetters
@@ -10,7 +12,6 @@ let userID
 let letterCollection = '' // changed to be a string
 let wordCollection = [] // array of user submitted words
 let gameUserID
-let textUrl = 'https://api.text-ray.xyz'
 let allCurrentGameWords = [] // array of current valid game words to avoid pinging api
 
 
@@ -30,8 +31,8 @@ document.addEventListener('DOMContentLoaded', (event) => {
         } else if (e.target.id === "end-game") {
             createGameUser()
             startState()
-        } //end of change user listener
-    }) // end of user event listener
+        } 
+    }) 
     
     document.addEventListener("click", function(e){
         if (e.target.className === "boxLetters sansserif"){
@@ -75,34 +76,13 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }   
     }) // end of click event listener
     
-    
     function getUser(userName) {
-        fetch(`${textUrl}/users/${userName}`)
-        // fetch(`http://localhost:3000/users/${userName}`)
+        fetch(`${textUrl}/users/search?name=${userName}`)
         .then(response => response.json())
         .then(user => {
-            // if (!user) {
-            // will check for null on all data types, 0's won't register - ok for this
-            if (user === null) {
-                console.log(`couldn't find ${userName}`)
-                addNewUser(userName)
-            } else {
-                userID = user.id
-                console.log(`found ${userName} w/id of ${userID}`)
-            }
+            userID = user.id
             changeLoggedInState()
         })
-    } 
-    
-    function addNewUser(userName) {
-        let new_user = {name: userName}
-        fetch(`${textUrl}/users`, {
-        method: 'post',
-        headers: {
-            "accept": "application/json",
-            "content-type": "application/json" },
-        body: JSON.stringify(new_user) })
-            .then(getUser(userName))
     } 
     
     function changeLoggedInState(){
@@ -117,7 +97,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         </ul>
         `
         setNewGame()
-
     }
 
     function nextGame(){
@@ -135,7 +114,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         if (gameID === curGame) {
             gameID = Math.floor(Math.random() * 3) + 1 
         } else {
-        console.log(`game ID ${gameID}`)
         getGameLetters(gameID)
         getGameWords(gameID)
 
@@ -160,7 +138,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     
     function getWordValue(word){
         // just pings server to get point_value for word
-        fetch(`${textUrl}/words/${word}`)
+        fetch(`${textUrl}/words/${word.toLowerCase()}`)
         .then(resp => resp.json())
         .then(findWord => {addWordToScore(findWord.point_value)  
         }).catch(function() {
@@ -186,7 +164,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
                 }
             }) 
         })
-        .then(document.querySelector("li").remove()) 
+        // .then(document.querySelector("li").remove()) 
     }
     
     function addWordToScore(points){
@@ -244,9 +222,6 @@ document.addEventListener('DOMContentLoaded', (event) => {
         })  
     } 
 
-    
-    
-    
 }); // end of DOM Content Loaded 
 
 function displayLeaderBoard(playerInfo) {
@@ -257,7 +232,6 @@ function displayLeaderBoard(playerInfo) {
         newestLi.innerText = playerInfo
         newestUL.appendChild(newestLi)
     }
-
 }
 
 function loadAllWords(gameID) {
@@ -269,6 +243,8 @@ function loadAllWords(gameID) {
 
 function getSingleWord(wordIdNum) {
     // adds all current game winning words to an array for
+    // we really should've handled processing the words better on the backend to avoid making so many fetch req
+    // TODO fix backend so that when gameId is found it also supplies the words so we can remove redundant loops
     fetch(`${textUrl}/words/`)
         .then(response => response.json())
         .then(allWords => {allWords.forEach(singleWord => {
